@@ -1,2 +1,2 @@
 # ZengLabPytorchBasics
-ZengLab基础入门测试-pyTorch
+ZengLab基础入门知识测试-pyTorch
