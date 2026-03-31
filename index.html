@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>PyTorch深度学习小考 - 小土堆教程版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f5f0e8 0%, #e8e0d5 100%);
+            min-height: 100vh;
+            padding: 24px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .app-card {
+            max-width: 1100px;
+            width: 100%;
+            background: white;
+            border-radius: 48px 32px 48px 32px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .hero {
+            background: #5e4b3c;
+            padding: 28px 32px;
+            color: white;
+        }
+        .hero h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .hero h1 span {
+            background: #f4c542;
+            font-size: 1.5rem;
+            padding: 0 12px;
+            border-radius: 60px;
+            color: #5e4b3c;
+        }
+        .hero p {
+            margin-top: 12px;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        .content {
+            padding: 28px 32px 36px;
+            background: #ffffff;
+        }
+        .login-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px 30px;
+        }
+        .login-panel h2 {
+            color: #5e4b3c;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .input-group {
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 24px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border: 2px solid #e2d5c8;
+            border-radius: 60px;
+            outline: none;
+            transition: 0.2s;
+            background: #fefefe;
+        }
+        .input-group input:focus {
+            border-color: #b48c5c;
+            box-shadow: 0 0 0 3px rgba(180,140,92,0.2);
+        }
+        .btn {
+            background: #b48c5c;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background: #b48c5c;
+        }
+        .btn-primary:hover {
+            background: #8e6a42;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #b48c5c;
+            color: #b48c5c;
+            box-shadow: none;
+        }
+        .btn-outline:hover {
+            background: #fef6e8;
+        }
+        .btn-secondary {
+            background: #e9c46a;
+            color: #5e4b3c;
+        }
+        .btn-secondary:hover {
+            background: #e2b93b;
+        }
+        .flex-btns {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #fef6e8;
+            padding: 12px 18px;
+            border-radius: 60px;
+        }
+        .mode-buttons span {
+            font-weight: 600;
+            color: #5e4b3c;
+            margin-right: 8px;
+        }
+        .mode-btn {
+            background: #e8e0d5;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mode-btn.active {
+            background: #b48c5c;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px dashed #e2d5c8;
+        }
+        .student-greeting {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #5e4b3c;
+        }
+        .student-greeting small {
+            font-weight: normal;
+            font-size: 0.9rem;
+            color: #a68b6e;
+        }
+        .questions-area {
+            margin: 20px 0 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .question-card {
+            background: #fefaf5;
+            border-radius: 28px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            border: 1px solid #ede3d7;
+            transition: 0.1s;
+        }
+        .q-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 18px;
+            color: #7c5f42;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .q-num {
+            background: #b48c5c;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-left: 10px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: white;
+            padding: 10px 16px;
+            border-radius: 60px;
+            border: 1px solid #e8ddcf;
+            transition: 0.1s;
+            cursor: pointer;
+        }
+        .option:hover {
+            background: #fef3e8;
+            border-color: #d4bc9a;
+        }
+        .option input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #b48c5c;
+        }
+        .option label {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #4a3a2c;
+            cursor: pointer;
+            flex: 1;
+        }
+        .sort-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #fef3e8;
+            padding: 16px;
+            border-radius: 24px;
+            margin-top: 8px;
+        }
+        .sort-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 10px 16px;
+            border-radius: 40px;
+            border: 1px solid #e8ddcf;
+        }
+        .sort-item input {
+            width: 50px;
+            padding: 6px 10px;
+            border-radius: 30px;
+            border: 1px solid #d4bc9a;
+            text-align: center;
+            font-weight: bold;
+        }
+        .sort-code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            background: #f5efe7;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        .result-panel {
+            background: #fef6e8;
+            border-radius: 28px;
+            padding: 20px 24px;
+            margin-top: 28px;
+        }
+        .score-box {
+            background: #b48c5c;
+            border-radius: 40px;
+            padding: 10px 20px;
+            display: inline-block;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+        .wrong-list {
+            margin-top: 16px;
+        }
+        .wrong-item {
+            background: white;
+            border-left: 8px solid #e9c46a;
+            padding: 14px 18px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .wrong-question {
+            font-weight: 700;
+            color: #c44536;
+        }
+        .wrong-detail {
+            font-size: 0.9rem;
+            color: #6a5a48;
+            margin-top: 6px;
+        }
+        .empty-tip {
+            color: #a68b6e;
+            font-style: italic;
+        }
+        .hide {
+            display: none;
+        }
+        footer {
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 30px;
+            color: #b8a48c;
+        }
+        @media (max-width: 650px) {
+            .content { padding: 20px; }
+            .question-card { padding: 16px; }
+            .option { padding: 6px 12px; }
+        }
+        button:active { transform: scale(0.97); }
+        .questions-area::-webkit-scrollbar { width: 6px; }
+        .questions-area::-webkit-scrollbar-track { background: #e8e0d5; border-radius: 8px; }
+        .questions-area::-webkit-scrollbar-thumb { background: #b48c5c; border-radius: 8px; }
+    </style>
+</head>
+<body>
+<div class="app-card">
+    <div class="hero">
+        <h1>
+            🔥 PyTorch 深度学习小考
+            <span>50题</span>
+        </h1>
+        <p>基于【小土堆】教程 | 单选题 + 代码排序题 | 涵盖数据加载、TensorBoard、神经网络、训练套路、GPU使用等核心知识点</p>
+    </div>
+    <div class="content">
+        <div id="loginPanel" class="login-panel">
+            <h2>🧠 学员登录</h2>
+            <div class="input-group">
+                <input type="text" id="studentNameInput" placeholder="输入你的名字 / 昵称" autocomplete="off">
+            </div>
+            <button id="loginBtn" class="btn btn-primary">📚 开始深度学习测验</button>
+            <p style="margin-top: 20px; font-size: 0.8rem; color:#a68b6e;">⭐ 包含50道PyTorch入门题（含代码排序），巩固小土堆教程核心套路</p>
+        </div>
+
+        <div id="examPanel" class="hide">
+            <div class="exam-header">
+                <div class="student-greeting">
+                    👩‍💻 同学：<span id="studentNameDisplay"></span>
+                    <small> · PyTorch 挑战赛</small>
+                </div>
+                <button id="logoutBtn" class="btn-outline btn" style="padding: 6px 18px;">🚪 退出登录</button>
+            </div>
+            <div class="mode-buttons">
+                <span>📌 题目顺序模式：</span>
+                <button id="orderModeBtn" class="mode-btn active">顺序模式</button>
+                <button id="randomModeBtn" class="mode-btn">随机打乱模式</button>
+                <span style="margin-left: 8px; font-size:0.75rem;">切换模式会清空当前答案</span>
+            </div>
+            <div id="questionsContainer" class="questions-area"></div>
+            <div class="flex-btns">
+                <button id="submitExamBtn" class="btn btn-primary">✅ 提交试卷 & 查看分数</button>
+                <button id="resetAnswersBtn" class="btn-outline btn">🔄 清空所有答案</button>
+            </div>
+            <div id="resultArea" class="result-panel hide">
+                <div class="score-box" id="scoreBox">得分: -- / --</div>
+                <h3 style="margin-bottom: 12px;">📌 错题本 (错题记录)</h3>
+                <div id="wrongListContainer"></div>
+            </div>
+            <footer>💡 排序题：请将代码步骤按正确执行顺序填入数字(1,2,3...)。提交时自动判分。</footer>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== 题库构建 ====================
+    // 一共50道题：包含单选题 + 排序题（考察固定套路步骤）
+    const BASE_QUESTIONS = [
+        // 1-10: 基础概念与Dataset/DataLoader
+        { type: "choice", text: "PyTorch中用于存储和操作多维数据的核心数据结构是？", options: [{letter:"A",text:"array"},{letter:"B",text:"list"},{letter:"C",text:"Tensor"},{letter:"D",text:"ndarray"}], answerLetter: "C" },
+        { type: "choice", text: "以下哪个函数用于检查CUDA是否可用？", options: [{letter:"A",text:"torch.cuda.available()"},{letter:"B",text:"torch.cuda.is_available()"},{letter:"C",text:"torch.cuda.exists()"},{letter:"D",text:"torch.gpu.is_ready()"}], answerLetter: "B" },
+        { type: "choice", text: "在PyTorch中，Dataset类需要实现哪两个核心方法？", options: [{letter:"A",text:"__init__ 和 __call__"},{letter:"B",text:"__len__ 和 __getitem__"},{letter:"C",text:"load_data 和 get_label"},{letter:"D",text:"train 和 test"}], answerLetter: "B" },
+        { type: "choice", text: "DataLoader的作用是？", options: [{letter:"A",text:"加载整个数据集到内存"},{letter:"B",text:"对数据进行批量化、打乱、多线程加载"},{letter:"C",text:"只负责数据增强"},{letter:"D",text:"定义神经网络结构"}], answerLetter: "B" },
+        { type: "choice", text: "TensorBoard主要用于？", options: [{letter:"A",text:"训练模型"},{letter:"B",text:"可视化训练过程（损失、图像、曲线）"},{letter:"C",text:"数据预处理"},{letter:"D",text:"模型部署"}], answerLetter: "B" },
+        { type: "choice", text: "在PyTorch中使用TensorBoard记录标量（如损失值）应使用哪个方法？", options: [{letter:"A",text:"writer.add_graph()"},{letter:"B",text:"writer.add_scalar()"},{letter:"C",text:"writer.add_image()"},{letter:"D",text:"writer.add_histogram()"}], answerLetter: "B" },
+        { type: "choice", text: "torchvision.transforms.Compose的作用是？", options: [{letter:"A",text:"组合多个图像变换操作"},{letter:"B",text:"编译模型"},{letter:"C",text:"加载预训练模型"},{letter:"D",text:"计算损失函数"}], answerLetter: "A" },
+        { type: "choice", text: "以下哪个是常用的图像归一化变换？", options: [{letter:"A",text:"RandomCrop"},{letter:"B",text:"ToTensor"},{letter:"C",text:"Normalize"},{letter:"D",text:"Resize"}], answerLetter: "C" },
+        { type: "choice", text: "在PyTorch中，所有神经网络模块的基类是？", options: [{letter:"A",text:"torch.nn.Layer"},{letter:"B",text:"torch.nn.Module"},{letter:"C",text:"torch.nn.Net"},{letter:"D",text:"torch.nn.BaseModel"}], answerLetter: "B" },
+        { type: "choice", text: "在自定义神经网络时，必须实现哪个方法？", options: [{letter:"A",text:"__init__"},{letter:"B",text:"forward"},{letter:"C",text:"backward"},{letter:"D",text:"parameters"}], answerLetter: "B" },
+        
+        // 11-20: 卷积、池化、激活、损失、优化器
+        { type: "choice", text: "nn.Conv2d(in_channels=3, out_channels=6, kernel_size=3) 中，卷积核大小是？", options: [{letter:"A",text:"3x3"},{letter:"B",text:"6x6"},{letter:"C",text:"3x3x3"},{letter:"D",text:"无法确定"}], answerLetter: "A" },
+        { type: "choice", text: "最大池化层 nn.MaxPool2d(kernel_size=2) 的作用是？", options: [{letter:"A",text:"降低维度，保留显著特征"},{letter:"B",text:"增加维度"},{letter:"C",text:"激活函数"},{letter:"D",text:"批量归一化"}], answerLetter: "A" },
+        { type: "choice", text: "以下哪个是常用的非线性激活函数？", options: [{letter:"A",text:"Sigmoid"},{letter:"B",text:"ReLU"},{letter:"C",text:"Tanh"},{letter:"D",text:"以上都是"}], answerLetter: "D" },
+        { type: "choice", text: "线性层（全连接层）在PyTorch中对应的类是？", options: [{letter:"A",text:"nn.Conv2d"},{letter:"B",text:"nn.Linear"},{letter:"C",text:"nn.Dense"},{letter:"D",text:"nn.FC"}], answerLetter: "B" },
+        { type: "choice", text: "nn.Sequential的作用是？", options: [{letter:"A",text:"按顺序串联多个网络层"},{letter:"B",text:"并行运行多个网络"},{letter:"C",text:"只用于卷积网络"},{letter:"D",text:"数据加载"}], answerLetter: "A" },
+        { type: "choice", text: "以下哪个损失函数常用于多分类问题？", options: [{letter:"A",text:"MSELoss"},{letter:"B",text:"CrossEntropyLoss"},{letter:"C",text:"L1Loss"},{letter:"D",text:"BCELoss"}], answerLetter: "B" },
+        { type: "choice", text: "优化器（如Adam）的作用是？", options: [{letter:"A",text:"计算损失"},{letter:"B",text:"更新模型参数以降低损失"},{letter:"C",text:"加载数据"},{letter:"D",text:"可视化训练"}], answerLetter: "B" },
+        { type: "choice", text: "在训练循环中，执行 optimizer.zero_grad() 的目的是？", options: [{letter:"A",text:"将梯度清零"},{letter:"B",text:"将参数清零"},{letter:"C",text:"将损失清零"},{letter:"D",text:"将优化器状态清零"}], answerLetter: "A" },
+        { type: "choice", text: "loss.backward() 的作用是？", options: [{letter:"A",text:"前向传播"},{letter:"B",text:"反向传播计算梯度"},{letter:"C",text:"更新参数"},{letter:"D",text:"保存模型"}], answerLetter: "B" },
+        { type: "choice", text: "optimizer.step() 的作用是？", options: [{letter:"A",text:"计算损失"},{letter:"B",text:"根据梯度更新参数"},{letter:"C",text:"清零梯度"},{letter:"D",text:"打印日志"}], answerLetter: "B" },
+        
+        // 21-30: 模型保存/加载、GPU、完整训练套路
+        { type: "choice", text: "保存训练好的模型参数（state_dict）的常用方法是？", options: [{letter:"A",text:"torch.save(model, 'model.pth')"},{letter:"B",text:"torch.save(model.state_dict(), 'model.pth')"},{letter:"C",text:"model.save('model.pth')"},{letter:"D",text:"pickle.dump(model, 'model.pth')"}], answerLetter: "B" },
+        { type: "choice", text: "加载保存的模型参数到模型实例的正确方式是？", options: [{letter:"A",text:"model = torch.load('model.pth')"},{letter:"B",text:"model.load_state_dict(torch.load('model.pth'))"},{letter:"C",text:"model.load('model.pth')"},{letter:"D",text:"model.parameters = torch.load('model.pth')"}], answerLetter: "B" },
+        { type: "choice", text: "将模型和数据迁移到GPU上，通常使用哪条语句？", options: [{letter:"A",text:"model.cuda(); data.cuda()"},{letter:"B",text:"model.to(device); data.to(device)"},{letter:"C",text:"model.gpu(); data.gpu()"},{letter:"D",text:"model.to_gpu(); data.to_gpu()"}], answerLetter: "B" },
+        { type: "choice", text: "在模型验证/测试阶段，通常需要调用哪条语句来固定dropout/batchnorm行为？", options: [{letter:"A",text:"model.train()"},{letter:"B",text:"model.eval()"},{letter:"C",text:"model.test()"},{letter:"D",text:"model.infer()"}], answerLetter: "B" },
+        { type: "choice", text: "with torch.no_grad(): 的作用是？", options: [{letter:"A",text:"禁用梯度计算，节省内存和加速"},{letter:"B",text:"启用梯度计算"},{letter:"C",text:"清除缓存"},{letter:"D",text:"打印计算图"}], answerLetter: "A" },
+        { type: "choice", text: "在PyTorch中，torchvision.datasets 模块提供了？", options: [{letter:"A",text:"常用数据集（如CIFAR10、ImageNet）"},{letter:"B",text:"自定义数据集接口"},{letter:"C",text:"数据增强方法"},{letter:"D",text:"数据加载器"}], answerLetter: "A" },
+        { type: "choice", text: "以下哪个命令用于安装PyTorch（CUDA版）的典型pip命令？", options: [{letter:"A",text:"pip install torch"},{letter:"B",text:"pip install torch torchvision torchaudio"},{letter:"C",text:"conda install pytorch"},{letter:"D",text:"pip install pytorch-cuda"}], answerLetter: "B" },
+        { type: "choice", text: "使用TensorBoard时，启动Web界面的命令是？", options: [{letter:"A",text:"tensorboard --logdir=runs"},{letter:"B",text:"tb --logdir=runs"},{letter:"C",text:"tensorboard --port=6006"},{letter:"D",text:"python -m tensorboard.main"}], answerLetter: "A" },
+        { type: "choice", text: "在PyTorch中，常见的学习率调度器（如StepLR）位于哪个模块？", options: [{letter:"A",text:"torch.optim.lr_scheduler"},{letter:"B",text:"torch.lr_scheduler"},{letter:"C",text:"torch.nn.scheduler"},{letter:"D",text:"torch.utils.scheduler"}], answerLetter: "A" },
+        { type: "choice", text: "小土堆教程中用于演示数据加载的经典数据集是？", options: [{letter:"A",text:"MNIST"},{letter:"B",text:"CIFAR-10"},{letter:"C",text:"蚂蚁蜜蜂数据集"},{letter:"D",text:"ImageNet"}], answerLetter: "C" },
+        
+        // 31-40: 排序题（考察写程序的套路步骤）
+        { type: "sort", text: "【排序题】请将使用TensorBoard记录训练损失的代码步骤按正确顺序排列：", sortBlocks: [
+            "writer = SummaryWriter('runs/exp')",
+            "writer.add_scalar('Loss/train', loss, epoch)",
+            "from torch.utils.tensorboard import SummaryWriter",
+            "writer.close()"
+        ], correctOrder: [3,1,2,4] },  // 索引从1开始：导入->创建writer->记录->关闭
+        { type: "sort", text: "【排序题】请将自定义Dataset类的完整实现步骤排序：", sortBlocks: [
+            "def __len__(self): return len(self.data)",
+            "def __init__(self, root_dir, transform=None):",
+            "def __getitem__(self, idx): return img, label",
+            "class MyDataset(Dataset):"
+        ], correctOrder: [3,2,4,1] },
+        { type: "sort", text: "【排序题】请将完整的模型训练循环（一个epoch）的核心步骤排序：", sortBlocks: [
+            "optimizer.zero_grad()",
+            "loss.backward()",
+            "outputs = model(inputs)",
+            "loss = criterion(outputs, labels)",
+            "optimizer.step()"
+        ], correctOrder: [3,4,1,2,5] },
+        { type: "sort", text: "【排序题】请将使用GPU训练模型的典型流程排序：", sortBlocks: [
+            "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')",
+            "model.to(device)",
+            "data = data.to(device)",
+            "model = MyModel()",
+            "for data, label in dataloader:"
+        ], correctOrder: [1,4,2,5,3] },  // 先设置device，创建模型，模型.to(device)，循环内data.to(device)
+        { type: "sort", text: "【排序题】请将使用torchvision加载CIFAR10数据集的流程排序：", sortBlocks: [
+            "train_loader = DataLoader(train_set, batch_size=32, shuffle=True)",
+            "train_set = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)",
+            "transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(...)])",
+            "from torchvision import datasets, transforms"
+        ], correctOrder: [4,3,2,1] },
+        { type: "sort", text: "【排序题】请将神经网络定义（使用Sequential）的正确顺序排序：", sortBlocks: [
+            "self.conv1 = nn.Conv2d(3,6,5)",
+            "self.pool = nn.MaxPool2d(2,2)",
+            "self.fc = nn.Linear(16*5*5, 10)",
+            "def forward(self, x): x = self.pool(F.relu(self.conv1(x))); x = x.view(-1,16*5*5); return self.fc(x)"
+        ], correctOrder: [1,2,3,4] },
+        { type: "sort", text: "【排序题】请将保存并加载模型的常用步骤排序：", sortBlocks: [
+            "torch.save(model.state_dict(), 'model.pth')",
+            "model.load_state_dict(torch.load('model.pth'))",
+            "model = MyModel()",
+            "model.eval()  # 设置为评估模式"
+        ], correctOrder: [1,3,2,4] },  // 先保存，加载时先创建模型实例，再load，再eval
+        { type: "sort", text: "【排序题】请将计算分类准确率的步骤排序：", sortBlocks: [
+            "_, predicted = torch.max(outputs, 1)",
+            "correct = (predicted == labels).sum().item()",
+            "outputs = model(images)",
+            "accuracy = correct / len(labels)"
+        ], correctOrder: [3,1,2,4] },
+        { type: "sort", text: "【排序题】请将学习率调度器配合优化器的使用步骤排序：", sortBlocks: [
+            "optimizer = torch.optim.Adam(model.parameters(), lr=0.001)",
+            "scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)",
+            "for epoch in range(num_epochs):",
+            "    scheduler.step()   # 在每个epoch后更新lr"
+        ], correctOrder: [1,2,3,4] },
+        { type: "sort", text: "【排序题】请将模型验证阶段的典型流程排序：", sortBlocks: [
+            "with torch.no_grad():",
+            "    outputs = model(images)",
+            "    loss = criterion(outputs, labels)",
+            "model.eval()",
+            "total_loss += loss.item()"
+        ], correctOrder: [4,1,2,3,5] },
+        
+        // 41-50: 额外补充单选+排序
+        { type: "choice", text: "在PyTorch中，如果想冻结某层参数（不参与训练），应该设置？", options: [{letter:"A",text:"layer.requires_grad = False"},{letter:"B",text:"layer.trainable = False"},{letter:"C",text:"layer.freeze()"},{letter:"D",text:"layer.detach()"}], answerLetter: "A" },
+        { type: "choice", text: "torch.max(outputs, 1) 返回的两个值分别代表？", options: [{letter:"A",text:"最大值和索引"},{letter:"B",text:"最小值和索引"},{letter:"C",text:"均值和方差"},{letter:"D",text:"概率和类别"}], answerLetter: "A" },
+        { type: "choice", text: "以下哪个不是PyTorch常用的数据增强方式？", options: [{letter:"A",text:"RandomHorizontalFlip"},{letter:"B",text:"RandomRotation"},{letter:"C",text:"ColorJitter"},{letter:"D",text:"RandomShuffle"}], answerLetter: "D" },
+        { type: "choice", text: "小土堆教程中推荐的PyCharm与Jupyter对比，哪个更适合实验性探索？", options: [{letter:"A",text:"PyCharm更适合脚本式开发"},{letter:"B",text:"Jupyter更适合逐段调试和可视化"},{letter:"C",text:"两者完全一样"},{letter:"D",text:"只能用PyCharm"}], answerLetter: "B" },
+        { type: "choice", text: "神经网络训练时，损失值一直不下降，可能的原因不包括？", options: [{letter:"A",text:"学习率过小"},{letter:"B",text:"数据未归一化"},{letter:"C",text:"模型过于简单"},{letter:"D",text:"使用了GPU加速"}], answerLetter: "D" },
+        { type: "sort", text: "【排序题】请将完整的模型训练测试循环框架（含epoch）排序：", sortBlocks: [
+            "for epoch in range(num_epochs):",
+            "    for data, labels in train_loader:",
+            "        outputs = model(data); loss = criterion(outputs, labels)",
+            "        optimizer.zero_grad(); loss.backward(); optimizer.step()",
+            "    print(f'Epoch {epoch} Loss: {loss.item()}')"
+        ], correctOrder: [1,2,3,4,5] },
+        { type: "sort", text: "【排序题】请将添加TensorBoard图像记录的步骤排序：", sortBlocks: [
+            "writer.add_image('examples', grid, epoch)",
+            "grid = torchvision.utils.make_grid(images)",
+            "writer = SummaryWriter('runs/images')",
+            "from torch.utils.tensorboard import SummaryWriter"
+        ], correctOrder: [4,3,2,1] },
+        { type: "choice", text: "以下哪个函数用于查看模型的参数数量？", options: [{letter:"A",text:"model.num_params()"},{letter:"B",text:"sum(p.numel() for p in model.parameters())"},{letter:"C",text:"model.size()"},{letter:"D",text:"torch.numel(model)"}], answerLetter: "B" },
+        { type: "choice", text: "PyTorch中，如果要使用预训练的ResNet模型，应该从哪个模块导入？", options: [{letter:"A",text:"torchvision.models"},{letter:"B",text:"torch.models"},{letter:"C",text:"torch.nn.models"},{letter:"D",text:"torch.pretrained"}], answerLetter: "A" },
+        { type: "choice", text: "小土堆教程最后一集（完结）主要讲了什么内容？", options: [{letter:"A",text:"模型部署"},{letter:"B",text:"如何阅读和运行开源项目"},{letter:"C",text:"生成对抗网络"},{letter:"D",text:"强化学习"}], answerLetter: "B" }
+    ];
+
+    // 最终确认50题
+    console.log("最终题库数量:", BASE_QUESTIONS.length);
+
+    // 全局变量
+    let currentStudent = "";
+    let currentQuestions = [];
+    let currentMode = "order";
+    let questionsRendered = false;
+
+    // DOM 元素
+    const loginPanel = document.getElementById('loginPanel');
+    const examPanel = document.getElementById('examPanel');
+    const studentNameInput = document.getElementById('studentNameInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const studentNameDisplay = document.getElementById('studentNameDisplay');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const submitExamBtn = document.getElementById('submitExamBtn');
+    const resetAnswersBtn = document.getElementById('resetAnswersBtn');
+    const resultArea = document.getElementById('resultArea');
+    const scoreBox = document.getElementById('scoreBox');
+    const wrongListContainer = document.getElementById('wrongListContainer');
+    const orderModeBtn = document.getElementById('orderModeBtn');
+    const randomModeBtn = document.getElementById('randomModeBtn');
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function refreshQuestionOrder() {
+        if (currentMode === "order") currentQuestions = [...BASE_QUESTIONS];
+        else currentQuestions = shuffleArray([...BASE_QUESTIONS]);
+        renderQuestionsByCurrent();
+        clearAllInputs();
+        resetResultDisplay();
+    }
+
+    function renderQuestionsByCurrent() {
+        if (!questionsContainer) return;
+        let html = '';
+        currentQuestions.forEach((q, idx) => {
+            const qNumber = idx + 1;
+            if (q.type === "choice") {
+                let optionsHtml = '';
+                q.options.forEach(opt => {
+                    optionsHtml += `
+                        <div class="option">
+                            <input type="radio" name="q${idx}" value="${opt.letter}" id="q${idx}_${opt.letter}">
+                            <label for="q${idx}_${opt.letter}"><strong>${opt.letter}.</strong> ${escapeHtml(opt.text)}</label>
+                        </div>
+                    `;
+                });
+                html += `<div class="question-card"><div class="q-title"><span class="q-num">${qNumber}</span><span>${escapeHtml(q.text)}</span></div><div class="options">${optionsHtml}</div></div>`;
+            } else if (q.type === "sort") {
+                let sortHtml = '<div class="sort-options">';
+                q.sortBlocks.forEach((block, bidx) => {
+                    sortHtml += `<div class="sort-item"><input type="number" name="sort_${idx}_${bidx}" data-blockidx="${bidx}" placeholder="顺序" min="1" max="${q.sortBlocks.length}" style="width:60px"> <span class="sort-code">${escapeHtml(block)}</span></div>`;
+                });
+                sortHtml += '</div>';
+                html += `<div class="question-card"><div class="q-title"><span class="q-num">${qNumber}</span><span>${escapeHtml(q.text)}</span></div>${sortHtml}</div>`;
+            }
+        });
+        questionsContainer.innerHTML = html;
+        // 绑定点击
+        document.querySelectorAll('.option').forEach(optDiv => {
+            optDiv.addEventListener('click', (e) => {
+                const radio = optDiv.querySelector('input[type="radio"]');
+                if (radio && !radio.checked) radio.checked = true;
+            });
+        });
+    }
+
+    function clearAllInputs() {
+        if (!questionsContainer) return;
+        document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+        document.querySelectorAll('input[type="number"]').forEach(inp => inp.value = "");
+    }
+
+    function getCurrentUserAnswers() {
+        const answers = [];
+        for (let i = 0; i < currentQuestions.length; i++) {
+            const q = currentQuestions[i];
+            if (q.type === "choice") {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                answers.push(selected ? selected.value : null);
+            } else {
+                const orderMap = {};
+                let valid = true;
+                for (let j = 0; j < q.sortBlocks.length; j++) {
+                    const inp = document.querySelector(`input[name="sort_${i}_${j}"]`);
+                    const val = inp ? parseInt(inp.value) : NaN;
+                    if (isNaN(val) || val < 1 || val > q.sortBlocks.length) { valid = false; break; }
+                    orderMap[val] = j+1;
+                }
+                if (valid && Object.keys(orderMap).length === q.sortBlocks.length) {
+                    const userOrder = [];
+                    for (let k = 1; k <= q.sortBlocks.length; k++) userOrder.push(orderMap[k]);
+                    answers.push(userOrder);
+                } else answers.push(null);
+            }
+        }
+        return answers;
+    }
+
+    function computeScoreAndWrongs() {
+        const userAnswers = getCurrentUserAnswers();
+        let correctCount = 0;
+        const wrongItems = [];
+        for (let i = 0; i < currentQuestions.length; i++) {
+            const q = currentQuestions[i];
+            let isCorrect = false;
+            let correctAnswerStr = "", userAnswerStr = "";
+            if (q.type === "choice") {
+                const correctLetter = q.answerLetter;
+                const selected = userAnswers[i];
+                isCorrect = (selected !== null && selected === correctLetter);
+                const correctOpt = q.options.find(opt => opt.letter === correctLetter);
+                correctAnswerStr = correctOpt ? `${correctOpt.letter}. ${correctOpt.text}` : correctLetter;
+                if (selected) {
+                    const userOpt = q.options.find(opt => opt.letter === selected);
+                    userAnswerStr = userOpt ? `${userOpt.letter}. ${userOpt.text}` : selected;
+                } else userAnswerStr = "未作答";
+            } else {
+                const userOrder = userAnswers[i];
+                const correctOrder = q.correctOrder;
+                isCorrect = (userOrder !== null && JSON.stringify(userOrder) === JSON.stringify(correctOrder));
+                correctAnswerStr = "正确顺序: " + correctOrder.map(v => v).join(" → ");
+                userAnswerStr = userOrder ? userOrder.join(" → ") : "未作答或顺序不完整";
+            }
+            if (isCorrect) correctCount++;
+            else wrongItems.push({ questionText: q.text, userAnswer: userAnswerStr, correctAnswer: correctAnswerStr });
+        }
+        return { score: correctCount, total: currentQuestions.length, wrongItems };
+    }
+
+    function updateResultDisplay() {
+        const { score, total, wrongItems } = computeScoreAndWrongs();
+        scoreBox.innerText = `🎯 得分: ${score} / ${total}  ( ${Math.round((score/total)*100)}分 )`;
+        if (wrongItems.length === 0) wrongListContainer.innerHTML = '<div class="empty-tip">🏆 太棒了！PyTorch基础扎实！</div>';
+        else {
+            let wrongHtml = '';
+            wrongItems.forEach((item, idx) => {
+                wrongHtml += `<div class="wrong-item"><div class="wrong-question">❌ 错题 ${idx+1}：${escapeHtml(item.questionText)}</div><div class="wrong-detail">📝 你的答案：${escapeHtml(item.userAnswer)}</div><div class="wrong-detail">✅ 正确答案：${escapeHtml(item.correctAnswer)}</div></div>`;
+            });
+            wrongListContainer.innerHTML = wrongHtml;
+        }
+        resultArea.classList.remove('hide');
+    }
+
+    function resetResultDisplay() {
+        resultArea.classList.add('hide');
+        scoreBox.innerText = "得分: -- / --";
+        wrongListContainer.innerHTML = '<div class="empty-tip">✨ 提交试卷后将显示错题与分数</div>';
+    }
+
+    function setMode(mode) {
+        if (currentMode === mode) return;
+        currentMode = mode;
+        if (mode === "order") { orderModeBtn.classList.add("active"); randomModeBtn.classList.remove("active"); }
+        else { randomModeBtn.classList.add("active"); orderModeBtn.classList.remove("active"); }
+        refreshQuestionOrder();
+    }
+
+    function initExam(studentName) {
+        currentStudent = studentName;
+        studentNameDisplay.innerText = escapeHtml(currentStudent);
+        currentMode = "order";
+        orderModeBtn.classList.add("active"); randomModeBtn.classList.remove("active");
+        refreshQuestionOrder();
+        loginPanel.classList.add('hide');
+        examPanel.classList.remove('hide');
+        questionsRendered = true;
+    }
+
+    function logout() {
+        currentStudent = ""; studentNameInput.value = "";
+        loginPanel.classList.remove('hide'); examPanel.classList.add('hide');
+        resetResultDisplay(); if (questionsContainer) questionsContainer.innerHTML = '';
+        questionsRendered = false; currentQuestions = [];
+    }
+
+    function handleSubmit() {
+        if (!questionsRendered || currentQuestions.length === 0) refreshQuestionOrder();
+        const unanswered = [];
+        getCurrentUserAnswers().forEach((ans, idx) => { if (ans === null) unanswered.push(idx+1); });
+        if (unanswered.length) alert(`⚠️ 还有 ${unanswered.length} 道题未完整作答 (题号: ${unanswered.join(',')})，未答/未填排序将自动判为错误。`);
+        updateResultDisplay();
+    }
+
+    function handleResetAnswers() { if (questionsRendered) { clearAllInputs(); resetResultDisplay(); } }
+    function handleLogin() { let name = studentNameInput.value.trim(); if (!name) { alert("请输入姓名~"); return; } initExam(name.slice(0,20)); }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+
+    loginBtn.addEventListener('click', handleLogin);
+    logoutBtn.addEventListener('click', logout);
+    submitExamBtn.addEventListener('click', handleSubmit);
+    resetAnswersBtn.addEventListener('click', handleResetAnswers);
+    orderModeBtn.addEventListener('click', () => setMode("order"));
+    randomModeBtn.addEventListener('click', () => setMode("random"));
+    studentNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') handleLogin(); });
+    resetResultDisplay();
+</script>
+</body>
+</html>
